@@ -7,9 +7,6 @@ Rules = namedtuple('Rules', ['num_videos', 'num_endpoints', 'num_requests_descri
 endpoint_Cache = namedtuple('endpoint_Cache', ['id', 'latency'])
 Request = namedtuple('Request', ['endpoint_id', 'num_requests'])
 
-my_videos = {}
-my_endpoints = {}
-my_caches = {}
 
 
 
@@ -105,16 +102,21 @@ def parse_endpoint_lines(id,endpoint_line,endpoint_index,all_shit):
 
 
 def parse_input_file(filename):
+    my_videos = {}
+    my_endpoints = {}
+    my_caches = {}
+    endpoints_obj = {}
+    caches_obj = {}
+    endpoints = []
+    caches = []
     with open(filename, 'r') as file:
         all_shit = file.read().split('\n')
         rules = parse_rules(all_shit[0])
         all_videos = parse_videos(all_shit[1])
         videos_ind = dict((vid.id, vid) for vid in all_videos)
         # indexed
-        endpoints = []
         requests = 0
         endpoint_id = 0
-        caches = []
         endpoint_index = 2
         total_endpoints = rules.num_endpoints
         while total_endpoints > 0:
@@ -131,9 +133,9 @@ def parse_input_file(filename):
             videos_ind[elts[0]].requests.append(Request(endpoint_id= elts[1],num_requests = elts[2]))
             requests += 1
         caches = list(set(caches))
-    caches_obj = []
+    cachess = []
     for id in range(rules.num_caches):
-        caches_obj.append(Cache(id=id,size=rules.cache_size))
+        cachess.append(Cache(id=id,size=rules.cache_size))
     print rules
     #for id in videos_ind:
         #print 'Video',id,videos_ind[id].size
@@ -141,16 +143,19 @@ def parse_input_file(filename):
         #print 'Endpoint', end.id
     print 'videos', len(videos_ind)
     print 'endpoints', len(endpoints)
-    print 'caches', len(caches_obj)
+    print 'caches', len(cachess)
     print 'requests', requests
     my_videos = videos_ind
     for video in videos_ind.values():
         for request in video.requests:
             my_endpoints.setdefault(request.endpoint_id,{}).update({video.id:request.num_requests})
-    for cache in caches_obj:
+    for cache in cachess:
         my_caches[cache.id]={'size':cache.size, 'videos':[]}
     print 'caches', my_caches
     print 'endpoints', my_endpoints
+    endpoints_obj = dict((endpoint.id, endpoint) for endpoint in endpoints)
+    caches_obj = dict((cache.id,cache) for cache in cachess)
+    return my_videos ,my_endpoints,my_caches,endpoints_obj,caches_obj,endpoints
 
 
 class Cache(object):
@@ -178,13 +183,21 @@ class EndPoint(object):
 
 
 def main():
-
+    import operator
     parser = optparse.OptionParser()
     parser.add_option("-f", "--file", dest="filename",
                       help="write report to FILE", default='requirements.txt')
     (options, args) = parser.parse_args()
     parse_input_file(options.filename)
     print(select_combination(my_endpoints, my_videos))
+    # my_videos ,my_endpoints,my_caches,endpoints_obj,caches_obj,endpoints = parse_input_file(options.filename)
+    # for endpoint in my_endpoints:
+    #     available_caches = [c.id for c in endpoints_obj[endpoint].caches]
+    #     for vid,requests in sorted(my_endpoints[endpoint].items(),key=operator.itemgetter(1), reverse=True):
+    #         for available_cache in available_caches:
+    #             if caches_obj[available_cache].size > 0:
+    #                 caches_obj[available_cache].videos.append(vid)
+    #                 caches_obj[available_cache]-=my_videos[vid].size
 
 
 
