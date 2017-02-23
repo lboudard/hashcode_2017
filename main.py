@@ -27,18 +27,19 @@ class Combination(object):
             self._current_cost += cost
 
     def is_complete():
+        print 'yolo'
 
 
 
-
+tmp_cos = 0
 class CombinationsExplorer(object):
     def __init__(self, available_caches_per_endpoint_and_videos):
         self.available_caches = available_caches_per_endpoint_and_videos
 
-    def get(video_id=video_id, cache_id=cache_id, cache_cost=cache_cost, max_cost=tmp_cos):
+    def get(self,video_id, cache_id, cache_cost, max_cost=tmp_cos):
         combinations = []
         combination = Combination()
-        combination.set_video(video_id=video_id, cache_id=cache_id, cost)
+        #combination.set_video(video_id=video_id, cache_id=cache_id, cost)
 
 
 
@@ -137,7 +138,7 @@ def parse_input_file(filename):
     my_videos = videos_ind
     for video in videos_ind.values():
         for request in video.requests:
-            my_endpoints.setdefault(video.request.endpoint_id,{}).update({'video_id':video.id,'num_requests':video.request.num_requests})
+            my_endpoints.setdefault(request.endpoint_id,{}).update({'video_id':video.id,'num_requests':request.num_requests})
     for cache in caches_obj:
         my_caches[cache.id]={'size':cache.size, 'videos':[]}
 
