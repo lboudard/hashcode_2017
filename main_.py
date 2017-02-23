@@ -9,8 +9,6 @@ def write_final_submission(videos_caches, output_name):
     # first line : number of final caches
     file.write(str(len(videos_caches)) + '\n')
     for cache_id in videos_caches.keys():
-        if len(videos_caches[cache_id]) == 0:
-            continue
         cache = videos_caches[cache_id]
         line = str(cache['id'])
         line += ' '.join(str(video_id) for video_id in cache['videos'])
