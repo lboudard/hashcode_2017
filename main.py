@@ -9,7 +9,8 @@ def main():
                       help="write report to FILE", default='requirements.txt')
     (options, args) = parser.parse_args()
     with open(options.filename) as f:
-        f.read()
+        data = f.read()
+        print data
 
 if __name__ == '__main__':
     main()

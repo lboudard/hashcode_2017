@@ -2,7 +2,7 @@
 import optparse
 from collections import namedtuple
 
-Rules = namedtuple('Rules', ['rows','columns','ingredients_per_slice','max_cells_per_slice'])
+Rules = namedtuple('Rules', ['rows', 'columns', 'ingredients_per_slice', 'max_cells_per_slice'])
 
 
 def parse_rules(rules_line):
