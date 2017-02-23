@@ -33,6 +33,7 @@ def parse_input_file(filename):
         endpoints = []
         requests = []
         endpoints_id = 0
+        caches = []
         for line in all_shit[2:]:
             if line == '':
                 continue
@@ -46,15 +47,20 @@ def parse_input_file(filename):
                     endpoints.append(new_endpoint)
                 elif elts[0] <= rules.num_caches:
                     # it is a latency line
+                    caches.append(elts[0])
                     endpoints[-1].caches.append(Cache(id=elts[0], latency=elts[1]))
             elif len(elts) == 3:
                 #it is a request line
                 videos_ind[elts[0]].requests.append(Request(endpoint_id= elts[1],num_requests = elts[2]))
+        caches = list(set(caches))
     print rules
-    for id in videos_ind:
-        print 'Video',id,videos_ind[id].size
-    for end in endpoints:
-        print 'Endpoint', end.id
+    #for id in videos_ind:
+        #print 'Video',id,videos_ind[id].size
+    #for end in endpoints:
+        #print 'Endpoint', end.id
+    print 'videos', len(videos_ind)
+    print 'endpoints', len(endpoints)
+    print 'caches', len_caches
 
 
 class MyObject(object):
