@@ -52,14 +52,15 @@ def parse_input_file(filename):
         endpoint_id = 0
         caches = []
         endpoint_index = 2
+        total_endpoints = rules.num_endpoints
         while total_endpoints > 0:
-            for line in all_shit[3:]:
-                if line == '':
-                    continue
-                new_endpoint, endpoint_index, listed_caches = parse_endpoint_lines(endpoint_id,all_shit[endpoint_index],all_shit)
+                new_endpoint, endpoint_index, listed_caches = parse_endpoint_lines(endpoint_id,all_shit[endpoint_index],endpoint_index,all_shit)
                 caches.extend(listed_caches)
                 endpoints.append(new_endpoint)
+                total_endpoints -= 1
         for line in all_shit[endpoint_index:]:
+            if line == '':
+                continue
             elts = map(int, line.split(' '))
             assert len(elts) == 3
             #it is a request line
