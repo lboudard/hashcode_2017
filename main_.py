@@ -9,6 +9,8 @@ def write_final_submission(videos_caches, output_name):
     # first line : number of final caches
     file.write(str(len(videos_caches)) + '\n')
     for cache_id in videos_caches.keys():
+        if len(videos_caches[cache_id]) == 0:
+            continue
         cache = videos_caches[cache_id]
         line = str(cache['id'])
         line += ' '.join(str(video_id) for video_id in cache['videos'])
@@ -102,8 +104,6 @@ def parse_input_file(filename):
             my_endpoints.setdefault(request['endpoint_id'],{}).update({video['id']:request['num_requests']})
     for cache in cachess:
         my_caches[cache['id']]={'size':cache['size'], 'videos':[]}
-    print 'caches', my_caches
-    print 'endpoints', my_endpoints
     for endpoint in endpoints:
         endpoints_obj[endpoint['id']] = endpoint
     for cache in cachess:
@@ -143,7 +143,6 @@ def main():
     (options, args) = parser.parse_args()
     my_videos ,my_endpoints,my_caches,endpoints_obj,caches_obj,endpoints = parse_input_file(options.filename)
     for endpoint in my_endpoints:
-        print endpoints_obj
         available_caches = [c['id'] for c in endpoints_obj[endpoint]['caches']]
         for vid,requests in sorted(my_endpoints[endpoint].items(),key=operator.itemgetter(1), reverse=True):
             for available_cache in available_caches:
