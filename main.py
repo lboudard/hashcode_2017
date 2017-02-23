@@ -47,8 +47,14 @@ def parse_input_file(filename):
                     endpoints.append(new_endpoint)
                 elif elts[0] <= rules.num_caches:
                     # it is a latency line
-                    caches.append(elts[0])
-                    endpoints[-1].caches.append(Cache(id=elts[0], latency=elts[1]))
+                    if elts[0] == 0:
+                        #it is the datacenter id
+                        endpoints[-1].datacenter_latency = elts[1]
+
+                    else:
+                        caches.append(elts[0])
+                        endpoints[-1].caches.append(Cache(id=elts[0], latency=elts[1]))
+
             elif len(elts) == 3:
                 #it is a request line
                 videos_ind[elts[0]].requests.append(Request(endpoint_id= elts[1],num_requests = elts[2]))
@@ -61,6 +67,7 @@ def parse_input_file(filename):
     print 'videos', len(videos_ind)
     print 'endpoints', len(endpoints)
     print 'caches', len(caches)
+    print caches
 
 
 class MyObject(object):
