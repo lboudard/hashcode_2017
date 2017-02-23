@@ -15,7 +15,7 @@ min_video_size = min([video.size for video in my_videos.values()])
 
 
 class Combination(object):
-    def __init__(self, videos, caches):
+    def __init__(self):
         self._videos_caches = defaultdict(set)
         self._current_cost = 0
         self._caches_videos = defaultdict(int)
@@ -25,14 +25,15 @@ class Combination(object):
         if my_videos[video_id].size <= (my_caches[cache_id].size - self._caches_videos[cache_id]) and cache_id not in my_videos[video_id].caches:
             self._videos_caches[video_id].add(cache_id)
             self._caches_videos[cache_id] += my_videos[video_id].size
-            return True
+            return 1
             # TODO calcul the cost
             # self._current_cost += cost
-        elif videos in 
-        return False
+        elif video_id in self._videos_caches:
+            return 0
+        return -1
 
-    def is_complete():
-        max_available_space = max([my_caches[0].size - v for v in self._caches_videos[cache_id]])
+    def is_complete(self):
+        max_available_space = max([my_caches[0].size - v for v in self._caches_videos.values()])
         return min_video_size >= max_available_space
 
 
@@ -42,31 +43,30 @@ class CombinationsExplorer(object):
 
     def compute(self):
         combination = Combination()
-        for (endpoint_id, video_id,), available_caches in sorted(to_expself.available_cacheslore.items(), key=lambda x: x[1][0], reverse=True):
+        for (endpoint_id, video_id,), available_caches in sorted(self.available_caches.items(), key=lambda x: x[1][0], reverse=True):
             for cache_id, cache_cost in available_caches:
                 upserted = combination.set_video(video_id, cache_id)
-                if upserted:
+                if combination.is_complete():
+                    return combination 
+                if upserted > -1:
+                    break
+        # TODO complete stuff
+        #while not combination.is_complete():
+        return combination
         #combination.set_video(video_id=video_id, cache_id=cache_id, cost)
 
-
-
-def select_combination(combinations, endpoints, videos):
+def select_combination(endpoints, videos):
     to_explore = {}
     for endpoint in endpoints:
         for video_id, nb_requests in endpoint.videos.iteritems():
             # best available caches for given video and endpoint
-            available_caches = sort(
+            available_caches = sorted(
                 [(cache.id, cache.latency * nb_requests) for cache in endpoint.caches],
                 key=lambda x: x[1])
-            to_explore[(endpoint_id, video_id,)] = available_caches
+            to_explore[(endpoint.id, video_id,)] = available_caches
     tmp_cost = sys.max_int
-    combination = CombinationsExplorer(to_explore)
-    # for (endpoint_id, video_id,), available_caches in sorted(to_explore.items(), key=lambda x: x[1][0], reverse=True):
-    #     cache_id, cache_cost = available_caches[0]
-    #     combination, cost = combinations.get(video_id=video_id, cache_id=cache_id, cache_cost=cache_cost, max_cost=tmp_cost)
-    #     if combination:
-    #         tmp_cost = cost
-    return combination
+    combination_explorer = CombinationsExplorer(to_explore)
+    return combination_explorer.compute()
 
 
 
@@ -145,7 +145,7 @@ def parse_input_file(filename):
     my_videos = videos_ind
     for video in videos_ind.values():
         for request in video.requests:
-            my_endpoints.setdefault(request.endpoint_id,{}).update({'video_id':video.id,'num_requests':request.num_requests})
+            my_endpoints.setdefault(request.endpoint_id,{}).update({video.id:request.num_requests})
     for cache in caches_obj:
         my_caches[cache.id]={'size':cache.size, 'videos':[]}
     print 'caches', my_caches
@@ -183,6 +183,9 @@ def main():
                       help="write report to FILE", default='requirements.txt')
     (options, args) = parser.parse_args()
     parse_input_file(options.filename)
+    print()
+
+
 
 if __name__ == '__main__':
     main()
