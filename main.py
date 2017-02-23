@@ -116,6 +116,7 @@ def parse_input_file(filename):
                 caches.extend(listed_caches)
                 endpoints.append(new_endpoint)
                 total_endpoints -= 1
+                endpoint_id +=1
         for line in all_shit[endpoint_index:]:
             if line == '':
                 continue
@@ -145,8 +146,11 @@ def parse_input_file(filename):
         my_caches[cache.id]={'size':cache.size, 'videos':[]}
     print 'caches', my_caches
     print 'endpoints', my_endpoints
-    endpoints_obj = dict((endpoint.id, endpoint) for endpoint in endpoints)
-    caches_obj = dict((cache.id,cache) for cache in cachess)
+    for endpoint in endpoints:
+        endpoints_obj[endpoint.id] = endpoint
+    print 'hey \n\n\n\n\n\n\n\n ',endpoints_obj
+    for cache in cachess:
+        caches_obj[cache.id] = cache
     return my_videos ,my_endpoints,my_caches,endpoints_obj,caches_obj,endpoints
 
 
@@ -181,14 +185,17 @@ def main():
                       help="write report to FILE", default='requirements.txt')
     (options, args) = parser.parse_args()
     my_videos ,my_endpoints,my_caches,endpoints_obj,caches_obj,endpoints = parse_input_file(options.filename)
+    print "hooooooooooooooooooooooooo",my_endpoints
     for endpoint in my_endpoints:
         available_caches = [c.id for c in endpoints_obj[endpoint].caches]
+        print available_caches
         for vid,requests in sorted(my_endpoints[endpoint].items(),key=operator.itemgetter(1), reverse=True):
             for available_cache in available_caches:
                 if caches_obj[available_cache].size > 0:
-                    caches_obj[available_cache].videos.append(vid)
-                    caches_obj[available_cache]-=my_videos[vid].size
-
+                    caches_obj[available_cache].videos = caches_obj[available_cache].videos.append(vid)
+                    caches_obj[available_cache].size=caches_obj[available_cache].size - my_videos[vid].size
+    for ca in caches_obj:
+        print caches_obj[ca].videos,caches_obj[ca].size
 
 
 if __name__ == '__main__':
