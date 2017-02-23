@@ -22,6 +22,23 @@ def parse_videos(videos_line):
         videos.append(Video(i, videos_raw[i]))
     return videos
 
+def parse_endpoint_lines(id,endpoint_line,endpoint_index,all_shit):
+    elts = map(int, endpoint_line.split(' '))
+    caches = []
+    new_endpoint = EndPoint(id=id, datacenter_latency=elts[0], caches=[])
+    if elts[1] == 0:
+        return new_endpoint, endpoint_index+1, caches
+    for line in all_shit[endpoint_index+1:elts[1]]:
+        l_elts = map(int, line.split(' '))
+        # it is a latency line
+        if l_elts[0] == 0:
+            #it is the datacenter id
+            new_endpoint.datacenter_latency = l_elts[1]
+        else:
+            caches.append(l_elts[0])
+            new_endpoint.caches.append(Cache(id=l_elts[0], latency=l_elts[1]))
+    return new_endpoint,endpoint_index+elts[1]+1, caches
+
 
 def parse_input_file(filename):
     with open(filename, 'r') as file:
@@ -32,32 +49,22 @@ def parse_input_file(filename):
         # indexed
         endpoints = []
         requests = []
-        endpoints_id = 0
+        endpoint_id = 0
         caches = []
-        for line in all_shit[2:]:
+        endpoint_index = 2
+        total_endpoints = rules.num_endpoints
+        while total_endpoints > 0:
+                new_endpoint, endpoint_index, listed_caches = parse_endpoint_lines(endpoint_id,all_shit[endpoint_index],endpoint_index,all_shit)
+                caches.extend(listed_caches)
+                endpoints.append(new_endpoint)
+                total_endpoints -= 1
+        for line in all_shit[endpoint_index:]:
             if line == '':
                 continue
             elts = map(int, line.split(' '))
-            if len(elts) == 2:
-                # it is a new endpoint or endpoint_latency_per_cache
-                if elts[0] > rules.num_caches:
-                    # it is an endpoint line
-                    new_endpoint = EndPoint(id=endpoints_id, datacenter_latency=elts[0], caches=[])
-                    endpoints_id += 1
-                    endpoints.append(new_endpoint)
-                elif elts[0] <= rules.num_caches:
-                    # it is a latency line
-                    if elts[0] == 0:
-                        #it is the datacenter id
-                        endpoints[-1].datacenter_latency = elts[1]
-
-                    else:
-                        caches.append(elts[0])
-                        endpoints[-1].caches.append(Cache(id=elts[0], latency=elts[1]))
-
-            elif len(elts) == 3:
-                #it is a request line
-                videos_ind[elts[0]].requests.append(Request(endpoint_id= elts[1],num_requests = elts[2]))
+            assert len(elts) == 3
+            #it is a request line
+            videos_ind[elts[0]].requests.append(Request(endpoint_id= elts[1],num_requests = elts[2]))
         caches = list(set(caches))
     print rules
     #for id in videos_ind:
@@ -67,7 +74,6 @@ def parse_input_file(filename):
     print 'videos', len(videos_ind)
     print 'endpoints', len(endpoints)
     print 'caches', len(caches)
-    print caches
 
 
 class MyObject(object):
@@ -99,7 +105,7 @@ def main():
     parser.add_option("-f", "--file", dest="filename",
                       help="write report to FILE", default='requirements.txt')
     (options, args) = parser.parse_args()
-    print parse_input_file(options.filename)
+    parse_input_file(options.filename)
 
 if __name__ == '__main__':
     main()
