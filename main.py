@@ -3,7 +3,7 @@ import optparse
 from collections import namedtuple
 
 Rules = namedtuple('Rules', ['num_videos', 'num_endpoints', 'num_requests_descriptions', 'num_caches', 'cache_size'])
-Cache = namedtuple('Cache', ['id', 'latency'])
+endpoint_Cache = namedtuple('endpoint_Cache', ['id', 'latency'])
 Request = namedtuple('Request', ['endpoint_id', 'num_requests'])
 
 
@@ -36,7 +36,7 @@ def parse_endpoint_lines(id,endpoint_line,endpoint_index,all_shit):
             new_endpoint.datacenter_latency = l_elts[1]
         else:
             caches.append(l_elts[0])
-            new_endpoint.caches.append(Cache(id=l_elts[0], latency=l_elts[1]))
+            new_endpoint.caches.append(endpoint_Cache(id=l_elts[0], latency=l_elts[1]))
     return new_endpoint,endpoint_index+elts[1]+1, caches
 
 
@@ -67,6 +67,9 @@ def parse_input_file(filename):
             videos_ind[elts[0]].requests.append(Request(endpoint_id= elts[1],num_requests = elts[2]))
             requests += 1
         caches = list(set(caches))
+    caches_obj = []
+    for id in range(rules.num_caches):
+        caches_obj.append(Cache(id=id,size=rules.cache_size))
     print rules
     #for id in videos_ind:
         #print 'Video',id,videos_ind[id].size
@@ -74,13 +77,15 @@ def parse_input_file(filename):
         #print 'Endpoint', end.id
     print 'videos', len(videos_ind)
     print 'endpoints', len(endpoints)
-    print 'caches', len(caches)
+    print 'caches', len(caches_obj)
     print 'requests', requests
 
 
-class MyObject(object):
-    def __str__(self):
-        return str(self)
+class Cache(object):
+    def __init__(self, id, size):
+        self.id = id
+        self.videos = []
+        self.size = size
 
 
 class Video(object):
@@ -92,13 +97,12 @@ class Video(object):
         self.id = id
 
 
-class EndPoint(MyObject):
+class EndPoint(object):
 
     def __init__(self, id, datacenter_latency, caches):
         self.id = id
         self.datacenter_latency = datacenter_latency
         self.caches = caches
-        self.videos = []
 
 
 def main():
