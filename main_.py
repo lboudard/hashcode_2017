@@ -3,6 +3,19 @@ import optparse
 from collections import namedtuple
 
 
+def write_final_submission(videos_caches, output_name):
+    # We write the file
+    file = open('output_name', 'w')
+    # first line : number of final caches
+    file.write(str(len(videos_caches)) + '\n')
+    for cache_id in videos_caches.keys():
+        cache = videos_caches[cache_id]
+        line = str(cache['id'])
+        line += ' '.join(str(video_id) for video_id in cache['videos'])
+        line += '\n'
+        file.write(line)
+    file.close()
+
 
 def parse_rules(rules_line):
     rules_raw = rules_line.split(' ')
@@ -140,6 +153,7 @@ def main():
 
     for ca in caches_obj:
         print caches_obj[ca]
+    write_final_submission(caches_obj,'output{}'.format(options.filename))
 
 if __name__ == '__main__':
     main()
