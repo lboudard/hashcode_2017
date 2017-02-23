@@ -7,6 +7,57 @@ Cache = namedtuple('Cache', ['id', 'latency'])
 Request = namedtuple('Request', ['endpoint_id', 'num_requests'])
 
 
+class Combination(object):
+    def __init__(self, videos, caches):
+        self._videos_caches = {}
+        self._current_cost = 0
+        self._caches_videos = {}
+
+
+    def set_video(self, video_id, cache_id):
+        # there is room left for video in cache
+        if Videos[video_id] < (Cache[cache_id] - self._caches_videos[cache_id]):
+            self._videos_caches[video_id] = cache_id
+            self._caches_videos[cache_id] = video_id
+
+            self._current_cost += cost
+
+    def is_complete():
+
+
+
+
+class CombinationsExplorer(object):
+    def __init__(self, available_caches_per_endpoint_and_videos):
+        self.available_caches = available_caches_per_endpoint_and_videos
+
+    def get(video_id=video_id, cache_id=cache_id, cache_cost=cache_cost, max_cost=tmp_cos):
+        combinations = []
+        combination = Combination()
+        combination.set_video(video_id=video_id, cache_id=cache_id, cost)
+
+
+
+def select_combination(combinations, endpoints, videos):
+    to_explore = {}
+    for endpoint in endpoints:
+        for video_id, nb_requests in endpoint.videos.iteritems():
+            # best available caches for given video and endpoint
+            available_caches = sort(
+                [(cache.id, cache.latency * nb_requests) for cache in endpoint.caches],
+                key=lambda x: x[1])
+            to_explore[(endpoint_id, video_id,)] = available_caches
+    tmp_cost = sys.max_int
+    combination = CombinationsExplorer(to_explore)
+    # for (endpoint_id, video_id,), available_caches in sorted(to_explore.items(), key=lambda x: x[1][0], reverse=True):
+    #     cache_id, cache_cost = available_caches[0]
+    #     combination, cost = combinations.get(video_id=video_id, cache_id=cache_id, cache_cost=cache_cost, max_cost=tmp_cost)
+    #     if combination:
+    #         tmp_cost = cost
+    return combination
+
+
+
 def parse_rules(rules_line):
     rules_raw = rules_line.split(' ')
     rules_raw = [int(rule) for rule in rules_raw]
@@ -68,11 +119,6 @@ def parse_input_file(filename):
     print 'endpoints', len(endpoints)
     print 'caches', len(caches)
     print caches
-
-
-class MyObject(object):
-    def __str__(self):
-        return str(self)
 
 
 class Video(object):
