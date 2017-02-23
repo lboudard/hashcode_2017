@@ -6,11 +6,7 @@ Rules = namedtuple('Rules', ['num_videos', 'num_endpoints', 'num_requests_descri
 endpoint_Cache = namedtuple('endpoint_Cache', ['id', 'latency'])
 Request = namedtuple('Request', ['endpoint_id', 'num_requests'])
 
-my_videos = {}
-my_endpoints = {}
-my_caches = {}
-endpoints_obj = {}
-caches_obj = {}
+
 
 class Combination(object):
     def __init__(self, videos, caches):
@@ -98,7 +94,11 @@ def parse_endpoint_lines(id,endpoint_line,endpoint_index,all_shit):
 
 
 def parse_input_file(filename):
+    my_videos = {}
     my_endpoints = {}
+    my_caches = {}
+    endpoints_obj = {}
+    caches_obj = {}
     endpoints = []
     caches = []
     with open(filename, 'r') as file:
@@ -147,7 +147,7 @@ def parse_input_file(filename):
     print 'endpoints', my_endpoints
     endpoints_obj = dict((endpoint.id, endpoint) for endpoint in endpoints)
     caches_obj = dict((cache.id,cache) for cache in cachess)
-    return caches_obj,endpoint_index,my_videos,endpoints_obj,my_endpoints
+    return my_videos ,my_endpoints,my_caches,endpoints_obj,caches_obj,endpoints
 
 
 class Cache(object):
@@ -180,9 +180,8 @@ def main():
     parser.add_option("-f", "--file", dest="filename",
                       help="write report to FILE", default='requirements.txt')
     (options, args) = parser.parse_args()
-    caches_obj,endpoint_index,my_videos,endpoints_obj,my_endpoints = parse_input_file(options.filename)
+    my_videos ,my_endpoints,my_caches,endpoints_obj,caches_obj,endpoints = parse_input_file(options.filename)
     for endpoint in my_endpoints:
-        print endpoints_obj, endpoint
         available_caches = [c.id for c in endpoints_obj[endpoint].caches]
         for vid,requests in sorted(my_endpoints[endpoint].items(),key=operator.itemgetter(1), reverse=True):
             for available_cache in available_caches:
