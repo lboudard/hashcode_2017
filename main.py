@@ -48,7 +48,7 @@ def parse_input_file(filename):
         videos_ind = dict((vid.id, vid) for vid in all_videos)
         # indexed
         endpoints = []
-        requests = []
+        requests = 0
         endpoint_id = 0
         caches = []
         endpoint_index = 2
@@ -65,6 +65,7 @@ def parse_input_file(filename):
             assert len(elts) == 3
             #it is a request line
             videos_ind[elts[0]].requests.append(Request(endpoint_id= elts[1],num_requests = elts[2]))
+            requests += 1
         caches = list(set(caches))
     print rules
     #for id in videos_ind:
@@ -74,6 +75,7 @@ def parse_input_file(filename):
     print 'videos', len(videos_ind)
     print 'endpoints', len(endpoints)
     print 'caches', len(caches)
+    print 'requests', requests
 
 
 class MyObject(object):
