@@ -138,7 +138,6 @@ def main():
                     caches_obj[available_cache]['videos'].append(vid)
                     caches_obj[available_cache]['size']=caches_obj[available_cache]['size']- my_videos[vid]['size']
 
-    caches_obj.pop(0)
     for ca in caches_obj:
         print caches_obj[ca]
 
