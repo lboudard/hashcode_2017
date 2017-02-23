@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import optparse
-from collections import namedtuple
+from collections import namedtuple, defaultdict
+from heapq import heappush
 
 Rules = namedtuple('Rules', ['num_videos', 'num_endpoints', 'num_requests_descriptions', 'num_caches', 'cache_size'])
 endpoint_Cache = namedtuple('endpoint_Cache', ['id', 'latency'])
@@ -10,35 +11,41 @@ my_videos = {}
 my_endpoints = {}
 my_caches = {}
 
+min_video_size = min([video.size for video in my_videos.values()])
+
 
 class Combination(object):
     def __init__(self, videos, caches):
-        self._videos_caches = {}
+        self._videos_caches = defaultdict(set)
         self._current_cost = 0
-        self._caches_videos = {}
-
+        self._caches_videos = defaultdict(int)
 
     def set_video(self, video_id, cache_id):
         # there is room left for video in cache
-        if Videos[video_id] < (Cache[cache_id] - self._caches_videos[cache_id]):
-            self._videos_caches[video_id] = cache_id
-            self._caches_videos[cache_id] = video_id
-
-            self._current_cost += cost
+        if my_videos[video_id].size <= (my_caches[cache_id].size - self._caches_videos[cache_id]) and cache_id not in my_videos[video_id].caches:
+            self._videos_caches[video_id].add(cache_id)
+            self._caches_videos[cache_id] += my_videos[video_id].size
+            return True
+            # TODO calcul the cost
+            # self._current_cost += cost
+        elif videos in 
+        return False
 
     def is_complete():
-        print 'yolo'
+        max_available_space = max([my_caches[0].size - v for v in self._caches_videos[cache_id]])
+        return min_video_size >= max_available_space
 
 
-
-tmp_cos = 0
 class CombinationsExplorer(object):
     def __init__(self, available_caches_per_endpoint_and_videos):
         self.available_caches = available_caches_per_endpoint_and_videos
 
-    def get(self,video_id, cache_id, cache_cost, max_cost=tmp_cos):
-        combinations = []
+    def compute(self):
         combination = Combination()
+        for (endpoint_id, video_id,), available_caches in sorted(to_expself.available_cacheslore.items(), key=lambda x: x[1][0], reverse=True):
+            for cache_id, cache_cost in available_caches:
+                upserted = combination.set_video(video_id, cache_id)
+                if upserted:
         #combination.set_video(video_id=video_id, cache_id=cache_id, cost)
 
 
