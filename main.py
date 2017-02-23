@@ -32,23 +32,29 @@ def parse_input_file(filename):
         # indexed
         endpoints = []
         requests = []
+        endpoints_id = 0
         for line in all_shit[2:]:
+            if line == '':
+                continue
             elts = map(int, line.split(' '),)
-            if len(elts)== 2:
+            if len(elts) == 2:
                 # it is a new endpoint or endpoint_latency_per_cache
                 if elts[0] > rules.num_caches:
                     # it is an endpoint line
-                    new_endpoint = EndPoint(datacenter_latency=elts[0], caches=[])
+                    new_endpoint = EndPoint(id=endpoints_id, datacenter_latency=elts[0], caches=[])
+                    endpoints_id += 1
                     endpoints.append(new_endpoint)
                 elif elts[0] <= rules.num_caches:
                     # it is a latency line
                     endpoints[-1].caches.append(Cache(id=elts[0], latency=elts[1]))
-            elif len(elts)==3:
+            elif len(elts) == 3:
                 #it is a request line
                 videos_ind[elts[0]].requests.append(Request(endpoint_id= elts[1],num_requests = elts[2]))
     print rules
     for id in videos_ind:
-        print 'Video',id,videos_ind[id].size,videos_ind[id].endpoints
+        print 'Video',id,videos_ind[id].size
+    for end in endpoints:
+        print 'Endpoint', end.id
 
 
 class MyObject(object):
@@ -67,7 +73,8 @@ class Video(object):
 
 class EndPoint(MyObject):
 
-    def __init__(self, datacenter_latency, caches):
+    def __init__(self, id, datacenter_latency, caches):
+        self.id = id
         self.datacenter_latency = datacenter_latency
         self.caches = caches
         self.videos = []
