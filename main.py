@@ -3,7 +3,7 @@ import optparse
 from collections import namedtuple
 
 Rules = namedtuple('Rules', ['num_videos', 'num_endpoints', 'num_requests_descriptions', 'num_caches', 'cache_size'])
-Cache = namedtuple('Cache', ['id', 'latency'])
+endpoint_Cache = namedtuple('endpoint_Cache', ['id', 'latency'])
 Request = namedtuple('Request', ['endpoint_id', 'num_requests'])
 
 
@@ -73,6 +73,23 @@ def parse_videos(videos_line):
         videos.append(Video(i, videos_raw[i]))
     return videos
 
+def parse_endpoint_lines(id,endpoint_line,endpoint_index,all_shit):
+    elts = map(int, endpoint_line.split(' '))
+    caches = []
+    new_endpoint = EndPoint(id=id, datacenter_latency=elts[0], caches=[])
+    if elts[1] == 0:
+        return new_endpoint, endpoint_index+1, caches
+    for line in all_shit[endpoint_index+1:elts[1]]:
+        l_elts = map(int, line.split(' '))
+        # it is a latency line
+        if l_elts[0] == 0:
+            #it is the datacenter id
+            new_endpoint.datacenter_latency = l_elts[1]
+        else:
+            caches.append(l_elts[0])
+            new_endpoint.caches.append(endpoint_Cache(id=l_elts[0], latency=l_elts[1]))
+    return new_endpoint,endpoint_index+elts[1]+1, caches
+
 
 def parse_input_file(filename):
     with open(filename, 'r') as file:
@@ -82,34 +99,28 @@ def parse_input_file(filename):
         videos_ind = dict((vid.id, vid) for vid in all_videos)
         # indexed
         endpoints = []
-        requests = []
-        endpoints_id = 0
+        requests = 0
+        endpoint_id = 0
         caches = []
-        for line in all_shit[2:]:
+        endpoint_index = 2
+        total_endpoints = rules.num_endpoints
+        while total_endpoints > 0:
+                new_endpoint, endpoint_index, listed_caches = parse_endpoint_lines(endpoint_id,all_shit[endpoint_index],endpoint_index,all_shit)
+                caches.extend(listed_caches)
+                endpoints.append(new_endpoint)
+                total_endpoints -= 1
+        for line in all_shit[endpoint_index:]:
             if line == '':
                 continue
             elts = map(int, line.split(' '))
-            if len(elts) == 2:
-                # it is a new endpoint or endpoint_latency_per_cache
-                if elts[0] > rules.num_caches:
-                    # it is an endpoint line
-                    new_endpoint = EndPoint(id=endpoints_id, datacenter_latency=elts[0], caches=[])
-                    endpoints_id += 1
-                    endpoints.append(new_endpoint)
-                elif elts[0] <= rules.num_caches:
-                    # it is a latency line
-                    if elts[0] == 0:
-                        #it is the datacenter id
-                        endpoints[-1].datacenter_latency = elts[1]
-
-                    else:
-                        caches.append(elts[0])
-                        endpoints[-1].caches.append(Cache(id=elts[0], latency=elts[1]))
-
-            elif len(elts) == 3:
-                #it is a request line
-                videos_ind[elts[0]].requests.append(Request(endpoint_id= elts[1],num_requests = elts[2]))
+            assert len(elts) == 3
+            #it is a request line
+            videos_ind[elts[0]].requests.append(Request(endpoint_id= elts[1],num_requests = elts[2]))
+            requests += 1
         caches = list(set(caches))
+    caches_obj = []
+    for id in range(rules.num_caches):
+        caches_obj.append(Cache(id=id,size=rules.cache_size))
     print rules
     #for id in videos_ind:
         #print 'Video',id,videos_ind[id].size
@@ -117,8 +128,14 @@ def parse_input_file(filename):
         #print 'Endpoint', end.id
     print 'videos', len(videos_ind)
     print 'endpoints', len(endpoints)
-    print 'caches', len(caches)
-    print caches
+    print 'caches', len(caches_obj)
+    print 'requests', requests
+
+class Cache(object):
+    def __init__(self, id, size):
+        self.id = id
+        self.videos = []
+        self.size = size
 
 
 class Video(object):
@@ -130,13 +147,12 @@ class Video(object):
         self.id = id
 
 
-class EndPoint(MyObject):
+class EndPoint(object):
 
     def __init__(self, id, datacenter_latency, caches):
         self.id = id
         self.datacenter_latency = datacenter_latency
         self.caches = caches
-        self.videos = []
 
 
 def main():
@@ -145,7 +161,7 @@ def main():
     parser.add_option("-f", "--file", dest="filename",
                       help="write report to FILE", default='requirements.txt')
     (options, args) = parser.parse_args()
-    print parse_input_file(options.filename)
+    parse_input_file(options.filename)
 
 if __name__ == '__main__':
     main()
