@@ -6,6 +6,10 @@ Rules = namedtuple('Rules', ['num_videos', 'num_endpoints', 'num_requests_descri
 endpoint_Cache = namedtuple('endpoint_Cache', ['id', 'latency'])
 Request = namedtuple('Request', ['endpoint_id', 'num_requests'])
 
+my_videos = {}
+my_endpoints = {}
+my_caches = {}
+
 
 def parse_rules(rules_line):
     rules_raw = rules_line.split(' ')
@@ -79,7 +83,12 @@ def parse_input_file(filename):
     print 'endpoints', len(endpoints)
     print 'caches', len(caches_obj)
     print 'requests', requests
-
+    my_videos = videos_ind
+    for video in videos_ind.values():
+        for request in video.requests:
+            my_endpoints.setdefault(video.request.endpoint_id,{}).update({'video_id':video.id,'num_requests':video.request.num_requests})
+    for cache in caches_obj:
+        my_caches[cache.id]={'size':cache.size, 'videos':[]}
 
 class Cache(object):
     def __init__(self, id, size):
