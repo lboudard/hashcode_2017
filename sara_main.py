@@ -49,9 +49,12 @@ def parse_input_file(filename):
                     # it is a latency line
                     if elts[0] == 0:
                         #it is the datacenter id
+                        endpoints[-1].datacenter_latency = elts[1]
+
+                    else:
+                        caches.append(elts[0])
                         endpoints[-1].caches.append(Cache(id=elts[0], latency=elts[1]))
-                    caches.append(elts[0])
-                    endpoints[-1].datacenter_latency = elts[1]
+
             elif len(elts) == 3:
                 #it is a request line
                 videos_ind[elts[0]].requests.append(Request(endpoint_id= elts[1],num_requests = elts[2]))
