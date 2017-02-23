@@ -5,11 +5,13 @@ from collections import namedtuple
 
 def write_final_submission(videos_caches, output_name):
     # We write the file
+    print len(videos_caches)
     file = open(output_name, 'w')
     # first line : number of final caches
     file.write(str(len(videos_caches)) + '\n')
     for cache_id in videos_caches.keys():
         cache = videos_caches[cache_id]
+        print cache
         line = str(cache['id'])
         line += ' '.join(str(video_id) for video_id in cache['videos'])
         line += '\n'
@@ -42,12 +44,8 @@ def parse_endpoint_lines(id,endpoint_line,endpoint_index,all_shit):
     for line in all_shit[endpoint_index+1:endpoint_index+1+elts[1]]:
         l_elts = map(int, line.split(' '))
         # it is a latency line
-        if l_elts[0] == 0:
-            #it is the datacenter id
-            new_endpoint['datacenter_latency'] = l_elts[1]
-        else:
-            caches.append(l_elts[0])
-            new_endpoint['caches'].append({'id':l_elts[0], 'latency':l_elts[1]})
+        caches.append(l_elts[0])
+        new_endpoint['caches'].append({'id':l_elts[0], 'latency':l_elts[1]})
     return new_endpoint,endpoint_index+elts[1]+1, caches
 
 
