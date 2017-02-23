@@ -37,7 +37,7 @@ def parse_input_file(filename):
         for line in all_shit[2:]:
             if line == '':
                 continue
-            elts = map(int, line.split(' '),)
+            elts = map(int, line.split(' '))
             if len(elts) == 2:
                 # it is a new endpoint or endpoint_latency_per_cache
                 if elts[0] > rules.num_caches:
