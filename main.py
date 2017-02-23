@@ -11,7 +11,6 @@ my_videos = {}
 my_endpoints = {}
 my_caches = {}
 
-min_video_size = min([video.size for video in my_videos.values()])
 
 
 class Combination(object):
@@ -19,6 +18,7 @@ class Combination(object):
         self._videos_caches = defaultdict(set)
         self._current_cost = 0
         self._caches_videos = defaultdict(int)
+        self._min_video_size = min([video.size for video in my_videos.values()])
 
     def set_video(self, video_id, cache_id):
         # there is room left for video in cache
@@ -34,8 +34,7 @@ class Combination(object):
 
     def is_complete(self):
         max_available_space = max([my_caches[0].size - v for v in self._caches_videos.values()])
-        return min_video_size >= max_available_space
-
+        return self._min_video_size > max_available_space
 
 class CombinationsExplorer(object):
     def __init__(self, available_caches_per_endpoint_and_videos):
@@ -57,8 +56,10 @@ class CombinationsExplorer(object):
 
 def select_combination(endpoints, videos):
     to_explore = {}
-    for endpoint in endpoints:
-        for video_id, nb_requests in endpoint.videos.iteritems():
+    print '-----'
+    for endpoint_id, videos_req in endpoints.iteritems():
+        print endpoint
+        for video_id, nb_requests in videos_req.iteritems():
             # best available caches for given video and endpoint
             available_caches = sorted(
                 [(cache.id, cache.latency * nb_requests) for cache in endpoint.caches],
@@ -183,7 +184,7 @@ def main():
                       help="write report to FILE", default='requirements.txt')
     (options, args) = parser.parse_args()
     parse_input_file(options.filename)
-    print()
+    print(select_combination(my_endpoints, my_videos))
 
 
 
