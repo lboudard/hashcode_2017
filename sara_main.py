@@ -74,7 +74,6 @@ def parse_input_file(filename):
     print 'videos', len(videos_ind)
     print 'endpoints', len(endpoints)
     print 'caches', len(caches)
-    print caches
 
 
 class MyObject(object):
@@ -106,7 +105,7 @@ def main():
     parser.add_option("-f", "--file", dest="filename",
                       help="write report to FILE", default='requirements.txt')
     (options, args) = parser.parse_args()
-    print parse_input_file(options.filename)
+    parse_input_file(options.filename)
 
 if __name__ == '__main__':
     main()
