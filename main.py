@@ -60,7 +60,7 @@ def parse_input_file(filename):
         #print 'Endpoint', end.id
     print 'videos', len(videos_ind)
     print 'endpoints', len(endpoints)
-    print 'caches', len_caches
+    print 'caches', len(caches)
 
 
 class MyObject(object):
