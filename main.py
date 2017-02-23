@@ -141,6 +141,9 @@ def parse_input_file(filename):
             my_endpoints.setdefault(request.endpoint_id,{}).update({'video_id':video.id,'num_requests':request.num_requests})
     for cache in caches_obj:
         my_caches[cache.id]={'size':cache.size, 'videos':[]}
+    print 'caches', my_caches
+    print 'endpoints', my_endpoints
+
 
 class Cache(object):
     def __init__(self, id, size):
