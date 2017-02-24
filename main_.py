@@ -11,9 +11,8 @@ def write_final_submission(videos_caches, output_name):
     file.write(str(len(videos_caches)) + '\n')
     for cache_id in videos_caches.keys():
         cache = videos_caches[cache_id]
-        print cache
-        line = str(cache['id'])
-        line += ' '.join(str(video_id) for video_id in cache['videos'])
+        line = str(cache['id']) + ' '
+        line += ' '.join(str(video_id) for video_id in list(set(cache['videos'])))
         line += '\n'
         file.write(line)
     file.close()
@@ -139,12 +138,13 @@ def main():
     (options, args) = parser.parse_args()
     my_videos ,my_endpoints,my_caches,endpoints_obj,caches_obj,endpoints = parse_input_file(options.filename)
     for endpoint in my_endpoints:
-        available_caches = [c['id'] for c in endpoints_obj[endpoint]['caches']]
+        available_caches = [c['id'] for c in sorted(endpoints_obj[endpoint]['caches'], key = lambda x:x['latency'])]
         for vid,requests in sorted(my_endpoints[endpoint].items(),key=operator.itemgetter(1), reverse=True):
             for available_cache in available_caches:
                 if caches_obj[available_cache]['size'] > 0 and caches_obj[available_cache]['size']- my_videos[vid]['size'] >0:
                     caches_obj[available_cache]['videos'].append(vid)
                     caches_obj[available_cache]['size']=caches_obj[available_cache]['size']- my_videos[vid]['size']
+                    break
 
     for ca in caches_obj:
         print caches_obj[ca]
